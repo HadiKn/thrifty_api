@@ -1,0 +1,29 @@
+# Ignore Python cache files
+pycache/
+*.py[cod]
+
+# Ignore virtual environments
+venv/
+env/
+
+# Ignore local DB
+*.sqlite3
+
+# Ignore static and media if generated locally
+staticfiles/
+media/
+
+# Ignore migration cache
+**/migrations/*.pyc
+**/migrations/pycache/
+
+# Ignore environment variables
+.env
+
+# Ignore IDE/editor configs
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
