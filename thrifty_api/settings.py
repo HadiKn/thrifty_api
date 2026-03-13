@@ -17,6 +17,8 @@ import cloudinary.api
 import rest_framework
 from decouple import config
 import os
+import dj_database_url
+
 
 
 
@@ -94,12 +96,41 @@ WSGI_APPLICATION = 'thrifty_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    if 'RENDER' in os.environ:
+        # On Render, use the DATABASE_URL environment variable
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=os.environ.get('DATABASE_URL'),
+                conn_max_age=600,
+                conn_health_checks=True,
+                ssl_require=True
+            )
+        }
+    else:
+        # Local development with Supabase
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME'),
+                'USER': os.environ.get('DB_USER'),
+                'PASSWORD': os.environ.get('DB_PASSWORD'),
+                'HOST': os.environ.get('DB_HOST'),
+                'PORT': os.environ.get('DB_PORT', '5432'),
+                'OPTIONS': {
+                    'sslmode': 'require',
+                },
+            }
+        }
+
+
 
 
 # Password validation
