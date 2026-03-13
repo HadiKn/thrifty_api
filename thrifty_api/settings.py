@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
     'storages',
+    'drf_spectacular',
     'users',
 ]
 
@@ -77,6 +78,22 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Thrifty API',
+    'DESCRIPTION': 'API documentation for the Thrifty project.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,  # Set to True if you want the schema to be included in the docs
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+    },
+    'REDOC_UI_SETTINGS': {
+        'hideDownloadButton': True,
+    },
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
