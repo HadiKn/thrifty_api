@@ -43,7 +43,7 @@ class UserCreateView(generics.CreateAPIView):
 
 class UserDestroyView(generics.DestroyAPIView):
     """
-    deletes the user sending the request verified by jwt Autherization header
+    deletes the user sending the request verified by jwt Authorization header
     """
     serializer_class = UserSerializer
     def get_object(self):

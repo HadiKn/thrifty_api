@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'storages',
     'drf_spectacular',
     'users',
+    'categories',
 ]
 
 MIDDLEWARE = [

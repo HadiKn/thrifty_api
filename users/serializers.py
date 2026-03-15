@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'password','profile_picture','profile_picture_url','detail_url')
-        read_only_fields = ['profile_picture_url']
+        read_only_fields = ['profile_picture_url','detail_url']
         extra_kwargs = {
         'profile_picture': {'write_only': True}
         }
