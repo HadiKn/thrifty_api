@@ -38,7 +38,23 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
     
+class UserMiniSerializer(serializers.ModelSerializer):
+    profile_picture_url = serializers.SerializerMethodField() 
+    detail_url = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'profile_picture_url', 'detail_url']
+        read_only_fields = fields
 
-
+    def get_profile_picture_url(self, obj):
+        if obj.profile_picture:
+            return obj.profile_picture.url
+        return "https://res.cloudinary.com/dswjejbhq/image/upload/v1773359973/photo_2026-03-13_02-57-42_jpy55s.jpg"
     
-    
+    def get_detail_url(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(
+                reverse('profile', kwargs={'pk': obj.pk})
+            )
+        return None

@@ -14,3 +14,17 @@ class CategorySerializer(serializers.ModelSerializer):
                 reverse('category-retrieve', kwargs={'pk': obj.pk})
             )
         return None
+
+class CategoryMiniSerializer(serializers.ModelSerializer):
+    detail_url = serializers.SerializerMethodField()
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'detail_url']
+        read_only_fields = fields       
+    def get_detail_url(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(
+                reverse('category-retrieve', kwargs={'pk': obj.pk})
+            )
+        return None

@@ -18,7 +18,7 @@ import rest_framework
 from decouple import config
 import os
 import dj_database_url
-
+from datetime import timedelta
 
 
 
@@ -55,8 +55,10 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'storages',
     'drf_spectacular',
+    'rest_framework_simplejwt',
     'users',
     'categories',
+    'items',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +83,11 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1), 
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
 

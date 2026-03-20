@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, status, filters, parsers  
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer
+from .serializers import UserSerializer,UserMiniSerializer
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from drf_spectacular.utils import extend_schema
 
@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema
 User = get_user_model()
 
 class UserListView(generics.ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserMiniSerializer
     queryset = User.objects.all()
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']

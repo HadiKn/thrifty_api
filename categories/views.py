@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
 from .models import Category
-from .serializers import CategorySerializer
+from .serializers import CategorySerializer,CategoryMiniSerializer
 
 
 class CategoryListView(generics.ListAPIView):
@@ -8,7 +8,7 @@ class CategoryListView(generics.ListAPIView):
     Public endpoint: list all categories.
     """
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    serializer_class = CategoryMiniSerializer
 
 
 class CategoryDetailView(generics.RetrieveAPIView):
