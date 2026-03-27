@@ -1,7 +1,8 @@
 from rest_framework import generics, permissions
 from .models import Category
 from .serializers import CategorySerializer,CategoryMiniSerializer
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 class CategoryListView(generics.ListAPIView):
     """
@@ -9,6 +10,9 @@ class CategoryListView(generics.ListAPIView):
     """
     queryset = Category.objects.all()
     serializer_class = CategoryMiniSerializer
+    @method_decorator(cache_page(60,key_prefix='list'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class CategoryDetailView(generics.RetrieveAPIView):

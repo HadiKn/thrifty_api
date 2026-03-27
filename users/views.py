@@ -4,7 +4,8 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer,UserMiniSerializer
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from drf_spectacular.utils import extend_schema
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 User = get_user_model()
 
@@ -13,6 +14,9 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']
+    @method_decorator(cache_page(60,key_prefix='list'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 class UserRetrieveView(generics.RetrieveAPIView):
     queryset = User.objects.all()
