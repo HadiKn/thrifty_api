@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'users',
     'categories',
     'items',
+    'wallet',
 ]
 
 MIDDLEWARE = [
@@ -96,6 +97,23 @@ CACHES = {
             },
         },
     }
+}
+
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+# SSL Configuration for Upstash Redis
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'ssl_cert_reqs': 'CERT_OPTIONAL',
+}
+
+CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
+    'ssl_cert_reqs': 'CERT_OPTIONAL',
 }
 
 SIMPLE_JWT = {
