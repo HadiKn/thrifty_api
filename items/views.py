@@ -6,6 +6,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.conf import settings
 from wallet.services import WalletService
@@ -36,7 +37,6 @@ class ItemListView(generics.ListAPIView):
     """
     serializer_class = ItemListSerializer
 
-    @cache_page(60, key_prefix='items_list')
     def get_queryset(self):
         queryset = Item.objects.all()
 
@@ -59,6 +59,9 @@ class ItemListView(generics.ListAPIView):
             queryset = queryset.filter(category_id=category)
 
         return queryset.order_by('-created_at')
+    @method_decorator(cache_page(60,key_prefix='items-list'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 # List images for a specific item
@@ -112,12 +115,14 @@ class AuctionBidsView(generics.ListAPIView):
 class UserBidsView(generics.ListAPIView):
     serializer_class = BidListSerializer
 
-    @cache_page(20, key_prefix='user_bids')
     def get_queryset(self):
         user_id = self.kwargs.get('pk')
         return Bid.objects.filter(
             bidder_id=user_id
         ).order_by('-bid_date')
+    @method_decorator(cache_page(60,key_prefix='user_bids'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 # View claims for a specific item
@@ -161,11 +166,13 @@ class MyItemsView(generics.ListAPIView):
     serializer_class = ItemListSerializer
     permission_classes = [IsAuthenticated]
 
-    @cache_page(45, key_prefix='my_items')
     def get_queryset(self):
         return Item.objects.filter(
             owner=self.request.user
         ).order_by('-created_at')
+    @method_decorator(cache_page(60,key_prefix='my_items'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 # List items claimed by current user
@@ -173,11 +180,13 @@ class MyClaimedItemsView(generics.ListAPIView):
     serializer_class = ItemListSerializer
     permission_classes = [IsAuthenticated]
 
-    @cache_page(45, key_prefix='my_claimed_items')
     def get_queryset(self):
         return Item.objects.filter(
             claim__buyer=self.request.user
         ).order_by('-created_at')
+    @method_decorator(cache_page(60,key_prefix='my_claimed_items'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 # List bids placed by current user
