@@ -214,6 +214,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Cron job secret key
+CRON_SECRET_KEY = config('CRON_SECRET_KEY')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

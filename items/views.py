@@ -1,12 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-
+from django.views.decorators.cache import cache_page
+from django.conf import settings
+from wallet.services import WalletService
 from .models import Item, ItemImage, Auction, Bid, Request, Claim
 from .serializers import (
     ItemListSerializer, ItemImageSerializer, ItemSerializer,
@@ -25,6 +27,7 @@ from .permissions import (
     IsItemOwnerForRequest,
     IsClaimViewer
 )
+from rest_framework.views import APIView
 
 # List all items with filtering support
 class ItemListView(generics.ListAPIView):
@@ -33,6 +36,7 @@ class ItemListView(generics.ListAPIView):
     """
     serializer_class = ItemListSerializer
 
+    @cache_page(60, key_prefix='items_list')
     def get_queryset(self):
         queryset = Item.objects.all()
 
@@ -108,6 +112,7 @@ class AuctionBidsView(generics.ListAPIView):
 class UserBidsView(generics.ListAPIView):
     serializer_class = BidListSerializer
 
+    @cache_page(20, key_prefix='user_bids')
     def get_queryset(self):
         user_id = self.kwargs.get('pk')
         return Bid.objects.filter(
@@ -156,6 +161,7 @@ class MyItemsView(generics.ListAPIView):
     serializer_class = ItemListSerializer
     permission_classes = [IsAuthenticated]
 
+    @cache_page(45, key_prefix='my_items')
     def get_queryset(self):
         return Item.objects.filter(
             owner=self.request.user
@@ -167,6 +173,7 @@ class MyClaimedItemsView(generics.ListAPIView):
     serializer_class = ItemListSerializer
     permission_classes = [IsAuthenticated]
 
+    @cache_page(45, key_prefix='my_claimed_items')
     def get_queryset(self):
         return Item.objects.filter(
             claim__buyer=self.request.user
@@ -412,3 +419,34 @@ class RequestDeleteView(generics.DestroyAPIView):
             raise PermissionDenied("You can only delete a pending request.")
         
         instance.delete()
+
+
+class EndExpiredAuctions(APIView):
+    """
+    Process expired auctions as a cron job alternative to Celery worker
+    """
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        # Check cron secret key
+        if request.headers.get("X-CRON-SECRET") != settings.CRON_SECRET_KEY:
+            return Response({"error": "Unauthorized"}, status=403)
+        
+        try:
+            from .tasks import end_expired_auctions
+            result = end_expired_auctions()
+            
+            return Response({
+                'message': f'Processed {result}',
+                'processed_count': result.count('expired auctions') if 'expired auctions' in result else 0,
+                'timestamp': timezone.now().isoformat(),
+                'status': 'success'
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                'error': str(e),
+                'timestamp': timezone.now().isoformat(),
+                'status': 'error'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    

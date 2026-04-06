@@ -25,6 +25,7 @@ from .views import (
     ItemImagesView,
     AuctionCreateView,
     purchase_item,
+    EndExpiredAuctions
 )
 
 urlpatterns = [
@@ -55,7 +56,11 @@ urlpatterns = [
     path('<int:item_id>/purchase/', purchase_item, name='item-purchase'),
     path('auctions/create/', AuctionCreateView.as_view(), name='auction-create'),
     path('bids/create/', BidCreateView.as_view(), name='bid-create'),
-
+    
+    # =====================
+    # CRON JOB ENDPOINT
+    path('end-expired-auctions/', EndExpiredAuctions.as_view(), name='end-expired-auctions'),
+    
     # =====================
     # UPDATE
     # =====================

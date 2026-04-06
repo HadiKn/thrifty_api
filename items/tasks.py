@@ -59,5 +59,5 @@ def process_auction_winner(auction):
             print(f"Payment failed for auction {auction.id}: {e}")
     else:
         # No bids - just end auction
-        auction.status = Auction.AuctionStatus.ENDED
+        auction.status = Auction.AuctionStatus.CANCELLED
         auction.save()
