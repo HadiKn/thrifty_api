@@ -7,12 +7,14 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     detail_url = serializers.SerializerMethodField()
-    profile_picture_url = serializers.SerializerMethodField() 
+    profile_picture_url = serializers.SerializerMethodField()
+    average_rating = serializers.FloatField(read_only=True)
+    rating_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password','profile_picture','profile_picture_url','detail_url')
-        read_only_fields = ['profile_picture_url','detail_url']
+        fields = ('id', 'username', 'email', 'password','profile_picture','profile_picture_url','detail_url','average_rating','rating_count')
+        read_only_fields = ['profile_picture_url','detail_url','average_rating','rating_count']
         extra_kwargs = {
         'profile_picture': {'write_only': True}
         }

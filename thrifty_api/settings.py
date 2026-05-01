@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'categories',
     'items',
     'wallet',
+    'ratings',
 ]
 
 MIDDLEWARE = [
