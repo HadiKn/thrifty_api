@@ -7,3 +7,28 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_all_descendants(self):
+        """Get all descendant categories recursively"""
+        descendants = []
+        for child in self.children.all():
+            descendants.append(child)
+            descendants.extend(child.get_all_descendants())
+        return descendants
+    
+    def get_all_ancestors(self):
+        """Get all ancestor categories recursively"""
+        ancestors = []
+        parent = self.parent
+        while parent:
+            ancestors.append(parent)
+            parent = parent.parent
+        return ancestors
+    
+    def get_family_tree(self):
+        """Get entire family tree (ancestors + self + descendants)"""
+        return {
+            'ancestors': self.get_all_ancestors(),
+            'self': self,
+            'descendants': self.get_all_descendants()
+        }

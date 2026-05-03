@@ -39,6 +39,43 @@ class ItemListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Item.objects.all()
+        
+        # Filter by recommendations
+        recommended = self.request.query_params.get('recommended')
+        if recommended and recommended.lower() == 'true':
+            if self.request.user.is_authenticated:
+                from items.models import Claim
+                from favorites.models import FavoriteCategory
+                from categories.models import Category
+                
+                purchased_categories = Claim.objects.filter(
+                    buyer=self.request.user
+                ).values_list('item__category', flat=True).distinct()
+                
+                favorite_categories = FavoriteCategory.objects.filter(
+                    user=self.request.user
+                ).values_list('category', flat=True)
+                
+                recommended_category_ids = set(purchased_categories) | set(favorite_categories)
+
+                # get subcategories recursively
+                expanded_category_ids = set(recommended_category_ids)
+                for category_id in recommended_category_ids:
+                    try:
+                        category = Category.objects.get(id=category_id)
+                        if category.parent:
+                            expanded_category_ids.add(category.parent.id)
+                        for child in category.get_all_descendants():
+                            expanded_category_ids.add(child.id)
+                    except Category.DoesNotExist:
+                        continue
+                
+                if expanded_category_ids:
+                    queryset = queryset.filter(category_id__in=expanded_category_ids)
+                else:
+                    queryset = queryset.none()
+            else:
+                queryset = queryset.none()
 
         # Filter by availability
         available = self.request.query_params.get('available')
@@ -59,9 +96,9 @@ class ItemListView(generics.ListAPIView):
             queryset = queryset.filter(category_id=category)
 
         return queryset.order_by('-created_at')
-    @method_decorator(cache_page(60,key_prefix='items-list'))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+    # @method_decorator(cache_page(5,key_prefix='items-list'))
+    # def list(self, request, *args, **kwargs):
+    #     return super().list(request, *args, **kwargs)
 
 
 # List images for a specific item
@@ -120,9 +157,9 @@ class UserBidsView(generics.ListAPIView):
         return Bid.objects.filter(
             bidder_id=user_id
         ).order_by('-bid_date')
-    @method_decorator(cache_page(60,key_prefix='user_bids'))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+    # @method_decorator(cache_page(60,key_prefix='user_bids'))
+    # def list(self, request, *args, **kwargs):
+    #     return super().list(request, *args, **kwargs)
 
 
 # View claims for a specific item
@@ -170,9 +207,9 @@ class MyItemsView(generics.ListAPIView):
         return Item.objects.filter(
             owner=self.request.user
         ).order_by('-created_at')
-    @method_decorator(cache_page(60,key_prefix='my_items'))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+    # @method_decorator(cache_page(60,key_prefix='my_items'))
+    # def list(self, request, *args, **kwargs):
+    #     return super().list(request, *args, **kwargs)
 
 
 # List items claimed by current user
@@ -184,9 +221,9 @@ class MyClaimedItemsView(generics.ListAPIView):
         return Item.objects.filter(
             claim__buyer=self.request.user
         ).order_by('-created_at')
-    @method_decorator(cache_page(60,key_prefix='my_claimed_items'))
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+    # @method_decorator(cache_page(60,key_prefix='my_claimed_items'))
+    # def list(self, request, *args, **kwargs):
+    #     return super().list(request, *args, **kwargs)
 
 
 # List bids placed by current user
