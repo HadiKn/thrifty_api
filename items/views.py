@@ -29,6 +29,7 @@ from .permissions import (
     IsClaimViewer
 )
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 # List all items with filtering support
 class ItemListView(generics.ListAPIView):
@@ -36,6 +37,38 @@ class ItemListView(generics.ListAPIView):
     Endpoint for listing Items using mini serializer with nested serializers for owner and category
     """
     serializer_class = ItemListSerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='recommended',
+                description='Filter by recommended items (based on favorites and purchase history)',
+                required=False,
+                type=bool
+            ),
+            OpenApiParameter(
+                name='available',
+                description='Filter by item availability',
+                required=False,
+                type=bool
+            ),
+            OpenApiParameter(
+                name='type',
+                description='Filter by listing type (donation, auction, request)',
+                required=False,
+                type=str
+            ),
+            OpenApiParameter(
+                name='category',
+                description='Filter by category ID',
+                required=False,
+                type=int
+            ),
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+ 
 
     def get_queryset(self):
         queryset = Item.objects.all()
