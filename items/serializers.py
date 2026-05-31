@@ -33,6 +33,8 @@ class ItemListSerializer(BaseItemSerializer):
     detail_url = serializers.SerializerMethodField()
     category = CategoryMiniSerializer(read_only=True)
     owner = UserMiniSerializer(read_only=True)
+    image = serializers.SerializerMethodField()  
+
 
     class Meta:
         model = Item
@@ -47,12 +49,20 @@ class ItemListSerializer(BaseItemSerializer):
             "is_available",
             "created_at",
             "updated_at",
-            "detail_url"
+            "detail_url",
+            "image"
         ]
         read_only_fields = fields
 
     def get_detail_url(self, obj):
         return self.build_url(obj, 'item-detail')
+
+    def get_image(self, obj):
+        # Get the first image for the item
+        first_image = obj.images.first()
+        if first_image:
+            return first_image.image.url
+        return "https://res.cloudinary.com/dswjejbhq/image/upload/v1780254316/e7c6ea187a77cfe0a630f61543fcc429_hossqk.png"
 
 
 class ItemSerializer(BaseItemSerializer):

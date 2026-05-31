@@ -71,7 +71,7 @@ class ItemListView(generics.ListAPIView):
  
 
     def get_queryset(self):
-        queryset = Item.objects.all()
+        queryset = Item.objects.all().prefetch_related('images') 
         
         # Filter by recommendations
         recommended = self.request.query_params.get('recommended')
@@ -141,6 +141,18 @@ class ItemImagesView(generics.ListAPIView):
     def get_queryset(self):
         item_id = self.kwargs.get('pk')
         return ItemImage.objects.filter(item_id=item_id)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        
+        if not queryset.exists():
+            # Return default image if no images found
+            default_image_url = "https://res.cloudinary.com/dswjejbhq/image/upload/v1780254316/e7c6ea187a77cfe0a630f61543fcc429_hossqk.png"
+            return Response([{
+                'id': None,
+                'image': default_image_url
+            }])
+        
+        return super().list(request, *args, **kwargs)
 
 
 # Retrieve single item details

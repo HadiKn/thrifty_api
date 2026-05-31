@@ -38,7 +38,7 @@ urlpatterns = [
     path('requests/', RequestListView.as_view(), name='request-list'),
     path('my-items/', MyItemsView.as_view(), name='my-items'),
     path('my-claims/', MyClaimedItemsView.as_view(), name='my-claims'),
-    path('<int:pk>/images/', ItemImagesView.as_view(), name='item-images'),
+    path('<int:pk>/get-images/', ItemImagesView.as_view(), name='item-images'),
     path('<int:pk>/auction/', ItemAuctionView.as_view(), name='item-auction'),
 
     # path('auctions/', AuctionListView.as_view(), name='auction-list'),
