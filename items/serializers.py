@@ -443,6 +443,7 @@ class RequestActionSerializer(BaseRequestSerializer):
 
 class RequestSerializer(BaseRequestSerializer):
     requester = UserMiniSerializer(read_only=True)
+    item = ItemListSerializer(read_only=True)
 
     class Meta:
         model = Request
