@@ -24,15 +24,10 @@ class Item(models.Model):
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.listing_type}"
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['name', 'owner', 'category'],
-                name='unique_item_name_owner_category'
-            )
-        ]
+        pass
 
 
 class ItemImage(models.Model):

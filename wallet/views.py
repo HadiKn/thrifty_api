@@ -9,6 +9,7 @@ from .serializers import (
     WalletTopupSerializer
 )
 from .services import WalletService
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class WalletDetailView(generics.RetrieveAPIView):
@@ -28,10 +29,35 @@ class WalletTransactionListView(generics.ListAPIView):
     """
     serializer_class = WalletTransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='admin_topup',
+                description='Filter by admin topup transactions (true=only topups, false=exclude topups)',
+                required=False,
+                type=bool
+            ),
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
     
     def get_queryset(self):
         wallet = WalletService.get_or_create_wallet(self.request.user)
-        return WalletTransaction.objects.filter(wallet=wallet).order_by('-created_at')
+        queryset = WalletTransaction.objects.filter(wallet=wallet).order_by('-created_at')
+        
+        # Filter by admin_topup parameter
+        admin_topup = self.request.query_params.get('admin_topup')
+        if admin_topup is not None:
+            if admin_topup.lower() == 'true':
+                # Only admin topup transactions
+                queryset = queryset.filter(kind=WalletTransaction.Kind.ADMIN_TOPUP)
+            elif admin_topup.lower() == 'false':
+                # Exclude admin topup transactions
+                queryset = queryset.exclude(kind=WalletTransaction.Kind.ADMIN_TOPUP)
+        
+        return queryset
 
 
 @api_view(['POST'])

@@ -34,8 +34,9 @@ def process_auction_winner(auction):
                 seller_wallet=seller_wallet,
                 amount=highest_bid.bid_amount,
                 reference_type="auction",
-                reference_id=auction.id,
-                description=f"Auction winner: {auction.item.name}"
+                reference_id=str(auction.item.id),
+                buyer_description=f"Payment for auction: {auction.item.name}",
+                seller_description=f"Auction sale: {auction.item.name}"
             )
             
             # Create claim

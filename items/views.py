@@ -446,7 +446,8 @@ def purchase_item(request, item_id):
             amount=item.price,
             reference_type='item',
             reference_id=str(item.id),
-            description=f'Purchase of {item.name}'
+            buyer_description=f'Purchase of {item.name}',
+            seller_description=f'Sale of {item.name}'
         )
         
         # Mark item as unavailable

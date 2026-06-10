@@ -67,22 +67,29 @@ class WalletService:
     
     @staticmethod
     @transaction.atomic
-    def process_complete_purchase(buyer_wallet, seller_wallet, amount, reference_type="", reference_id="", description="Purchase"):
+    def process_complete_purchase(buyer_wallet, seller_wallet, amount, reference_type="", reference_id="", buyer_description="Purchase", seller_description="Sale"):
         if amount <= 0:
             raise ValueError("Purchase amount must be positive")
         
         if buyer_wallet.balance < amount:
             raise ValueError("Insufficient buyer wallet balance")
+
+        # Determine transaction kind based on reference_type
+        if reference_type == "auction":
+            transaction_kind = WalletTransaction.Kind.AUCTION_PAYMENT
+        else:
+            transaction_kind = WalletTransaction.Kind.PURCHASE
+        
         
         buyer_new_balance = buyer_wallet.balance - amount
         buyer_transaction = WalletTransaction.objects.create(
             wallet=buyer_wallet,
             amount=-amount,
             balance_after=buyer_new_balance,
-            kind=WalletTransaction.Kind.PURCHASE,
+            kind=transaction_kind,
             reference_type=reference_type,
             reference_id=reference_id,
-            description=f"{description} - Payment"
+            description=buyer_description
         )
         buyer_wallet.balance = buyer_new_balance
         buyer_wallet.save()
@@ -92,10 +99,10 @@ class WalletService:
             wallet=seller_wallet,
             amount=amount, 
             balance_after=seller_new_balance,
-            kind=WalletTransaction.Kind.PURCHASE,
+            kind=transaction_kind,
             reference_type=reference_type,
             reference_id=reference_id,
-            description=f"{description} - Sale"
+            description=seller_description
         )
         seller_wallet.balance = seller_new_balance
         seller_wallet.save()
