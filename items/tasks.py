@@ -2,6 +2,7 @@ from celery import shared_task
 from django.utils import timezone
 from .models import Auction, Bid, Claim
 from wallet.services import WalletService
+from chat.services import send_auction_winner_notification
 
 @shared_task
 def end_expired_auctions():
@@ -15,7 +16,11 @@ def end_expired_auctions():
     for auction in expired_auctions:
         process_auction_winner(auction)
     
-    return f"Processed {expired_auctions.count()} expired auctions"
+    # In items/tasks.py, line 18
+    return {
+        "message": f"Processed {expired_auctions.count()} expired auctions",
+        "count": expired_auctions.count()
+    }
 
 def process_auction_winner(auction):
     """Process the auction winner and handle payment"""
@@ -52,6 +57,9 @@ def process_auction_winner(auction):
             
             auction.item.is_available = False
             auction.item.save()
+            
+            # Send notification to winner
+            send_auction_winner_notification(auction, highest_bid.bidder)
             
         except ValueError as e:
             # Insufficient funds - mark auction as ended but no winner

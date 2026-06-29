@@ -553,8 +553,8 @@ class EndExpiredAuctions(APIView):
             result = end_expired_auctions()
             
             return Response({
-                'message': f'Processed {result}',
-                'processed_count': result.count('expired auctions') if 'expired auctions' in result else 0,
+                'message': result['message'],
+                'processed_count': result['count'],
                 'timestamp': timezone.now().isoformat(),
                 'status': 'success'
             }, status=status.HTTP_200_OK)
