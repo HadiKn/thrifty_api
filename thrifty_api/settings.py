@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'storages',
     'drf_spectacular',
     'rest_framework_simplejwt',
+    "rest_framework_simplejwt.token_blacklist",
     'users',
     'categories',
     'items',
@@ -121,6 +122,8 @@ CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1), 
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 STREAM_API_KEY=config('STREAM_API_KEY')
