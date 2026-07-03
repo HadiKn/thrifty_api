@@ -216,7 +216,7 @@ class UserBidsView(generics.ListAPIView):
     #     return super().list(request, *args, **kwargs)
 
 
-# View claims for a specific item
+# View claim for a specific item
 class ItemClaimView(generics.RetrieveAPIView):
     serializer_class = ClaimSerializer
     permission_classes = [IsAuthenticated, IsClaimViewer]

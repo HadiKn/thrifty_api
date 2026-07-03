@@ -18,7 +18,7 @@ class Wallet(models.Model):
 
 class WalletTransaction(models.Model):
     """
-    Ledger row: every balance change should create one of these.
+    Transaction record row: every balance change should create one of these.
     amount: positive = credit (money in), negative = debit (money out).
     """
 

@@ -27,7 +27,7 @@ from items.models import Item, Claim
             }
         }
     },
-    tags=['Ratings']
+    tags=['ratings']
 )
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
