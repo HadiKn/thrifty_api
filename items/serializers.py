@@ -116,9 +116,17 @@ class ItemSerializer(BaseItemSerializer):
 
 
 class ItemImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = ItemImage
-        fields = ['id', 'image']
+        fields = ['id', 'image_url']
+        read_only_fields = ['id', 'image_url']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class AuctionListSerializer(serializers.ModelSerializer):

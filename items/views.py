@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
-from rest_framework import generics, status
+from rest_framework import generics, status,serializers
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import PermissionDenied
@@ -321,15 +321,25 @@ class AddItemImagesView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsItemOwner]
     parser_classes = [MultiPartParser, FormParser]
 
-    def perform_create(self, serializer):
-        item = Item.objects.get(id=self.kwargs.get('pk'))
-        self.check_object_permissions(self.request, item)
+    def create(self, request, *args, **kwargs):
+        item = get_object_or_404(Item, id=self.kwargs.get("pk"))
+        self.check_object_permissions(request, item)
 
-        serializer.save(
-            item=item,
-            image=self.request.FILES.get('image')
-        )
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response(
+                {"detail": "No images were provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        created_images = []
+        for image_file in images:
+            serializer = self.get_serializer(data={"image": image_file})
+            serializer.is_valid(raise_exception=True)
+            instance = serializer.save(item=item, image=image_file)
+            created_images.append(self.get_serializer(instance).data)
+
+        return Response(created_images, status=status.HTTP_201_CREATED)
 
 # Delete single image
 class DeleteItemImageView(generics.DestroyAPIView):
