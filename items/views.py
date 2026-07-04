@@ -29,7 +29,7 @@ from .permissions import (
     IsClaimViewer
 )
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
 from rest_framework import filters
 
 # List all items with filtering support
@@ -321,6 +321,27 @@ class AddItemImagesView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsItemOwner]
     parser_classes = [MultiPartParser, FormParser]
 
+    @extend_schema(
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'images': {
+                        'type': 'array',
+                        'items': {'type': 'string', 'format': 'binary'}
+                    }
+                },
+                'required': ['images']
+            }
+        },
+        responses={
+            201: OpenApiResponse(response=ItemImageSerializer(many=True), description='Images uploaded successfully'),
+            400: OpenApiResponse(description='No images were provided or invalid upload')
+        },
+        description='Upload one or more images for an existing item.'
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     def create(self, request, *args, **kwargs):
         item = get_object_or_404(Item, id=self.kwargs.get("pk"))
         self.check_object_permissions(request, item)

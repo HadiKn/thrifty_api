@@ -116,11 +116,12 @@ class ItemSerializer(BaseItemSerializer):
 
 
 class ItemImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
+    image = serializers.ImageField(write_only=True)
+    image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ItemImage
-        fields = ['id', 'image_url']
+        fields = ['id', 'image', 'image_url']
         read_only_fields = ['id', 'image_url']
 
     def get_image_url(self, obj):
