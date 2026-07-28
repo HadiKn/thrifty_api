@@ -26,7 +26,8 @@ from .permissions import (
     IsRequestOwnerOrItemOwner,
     IsRequestOwner,
     IsItemOwnerForRequest,
-    IsClaimViewer
+    IsClaimViewer,
+    IsItemOwnerForImage
 )
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
@@ -255,10 +256,10 @@ class RequestListView(generics.ListAPIView):
         request_type = self.request.query_params.get('type', 'all')
 
         if request_type == 'sent':
-            # Only requests I sent
+            # Only requests current user sent
             return Request.objects.filter(requester=user)
         elif request_type == 'received':
-            # Only requests I received
+            # Only requests current user received
             return Request.objects.filter(item__owner=user)
         else:
             # All requests (default)
@@ -365,7 +366,7 @@ class AddItemImagesView(generics.CreateAPIView):
 # Delete single image
 class DeleteItemImageView(generics.DestroyAPIView):
     serializer_class = ItemImageSerializer
-    permission_classes = [IsAuthenticated, IsItemOwner]
+    permission_classes = [IsAuthenticated, IsItemOwnerForImage]
     
     def get_object(self):
         item_id = self.kwargs.get('item_pk')
@@ -376,7 +377,7 @@ class DeleteItemImageView(generics.DestroyAPIView):
 # Update single image
 class UpdateItemImageView(generics.UpdateAPIView):
     serializer_class = ItemImageSerializer
-    permission_classes = [IsAuthenticated, IsItemOwner]
+    permission_classes = [IsAuthenticated, IsItemOwnerForImage]
     parser_classes = [MultiPartParser, FormParser]
     
     def get_object(self):

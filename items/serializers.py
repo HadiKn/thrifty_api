@@ -186,11 +186,11 @@ class AuctionSerializer(serializers.ModelSerializer):
         if end_time is None:
             raise serializers.ValidationError({"end_time": "End time is required."})
 
-        # ✅ Handle naive datetime safely
+        # Handle naive datetime safely
         if timezone.is_naive(end_time):
             end_time = timezone.make_aware(end_time)
 
-        # ✅ Validate using Django's timezone
+        # Validate using Django's timezone
         if end_time <= timezone.now():
             raise serializers.ValidationError({
                 "end_time": "End time must be in the future."

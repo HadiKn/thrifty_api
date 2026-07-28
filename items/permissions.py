@@ -4,8 +4,19 @@ from .models import Auction, Item, Request
 
 # check item ownership
 class IsItemOwner(BasePermission):
+    def has_permission(self, request, view):
+        item_id = request.data.get("item")
+        if item_id is None:
+            return True          # let the serializer raise the 400 for missing item
+        item = Item.objects.filter(id=item_id).first()
+        return bool(item and item.owner == request.user)
+
     def has_object_permission(self, request, view, obj):
         return obj.owner == request.user
+
+class IsItemOwnerForImage(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.item.owner == request.user
 
 
 class IsNotItemOwner(BasePermission):
