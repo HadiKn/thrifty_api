@@ -312,7 +312,14 @@ class ItemCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        # Auction items stay unavailable until their auction is created
+        listing_type = serializer.validated_data.get(
+            "listing_type", Item.ListingType.FIXED_PRICE
+        )
+        serializer.save(
+            owner=self.request.user,
+            is_available=listing_type != Item.ListingType.AUCTION,
+        )
 
 
 # Add images to an existing item
@@ -392,10 +399,16 @@ class AuctionCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         # Auto-start auction when created
-        serializer.save(
+        auction = serializer.save(
             status=Auction.AuctionStatus.ACTIVE,
             start_time=timezone.now()
         )
+
+        # The item becomes available once it is up for auction
+        item = auction.item
+        if not item.is_available:
+            item.is_available = True
+            item.save(update_fields=["is_available"])
 
 
 # Create new bid
@@ -542,7 +555,11 @@ class ItemDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsItemOwner]
 
     def perform_destroy(self, instance):
-        if not instance.is_available:
+        awaiting_auction = (
+            instance.listing_type == Item.ListingType.AUCTION and
+            not hasattr(instance, "auction")
+        )
+        if not instance.is_available and not awaiting_auction:
             raise PermissionDenied("You cannot delete an unavailable item.")
 
         # Delete related data
