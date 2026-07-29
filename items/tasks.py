@@ -55,8 +55,6 @@ def process_auction_winner(auction):
             auction.winner = highest_bid.bidder
             auction.save()
             
-            auction.item.is_available = False
-            auction.item.save()
             
             # Send notification to winner
             send_auction_winner_notification(auction, highest_bid.bidder)
@@ -70,3 +68,6 @@ def process_auction_winner(auction):
         # No bids - just end auction
         auction.status = Auction.AuctionStatus.CANCELLED
         auction.save()
+    
+    auction.item.is_available = False
+    auction.item.save()
