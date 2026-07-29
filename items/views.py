@@ -313,7 +313,13 @@ class ItemCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        listing_type = serializer.validated_data.get(
+            "listing_type", Item.ListingType.FIXED_PRICE
+        )
+        serializer.save(
+            owner=self.request.user,
+            is_available=listing_type != Item.ListingType.AUCTION,
+        )
 
 
 # Add images to an existing item
@@ -393,10 +399,15 @@ class AuctionCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         # Auto-start auction when created
-        serializer.save(
+        auction = serializer.save(
             status=Auction.AuctionStatus.ACTIVE,
             start_time=timezone.now()
         )
+
+        item = auction.item
+        if not item.is_available:
+            item.is_available = True
+            item.save(update_fields=["is_available"])
 
 
 # Create new bid
