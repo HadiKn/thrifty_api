@@ -11,9 +11,14 @@ User = get_user_model()
 def create_stream_user(sender, instance, created, **kwargs):
 
     if created:
-        client = get_stream_client()
-
-        client.upsert_user({
-            "id": str(instance.id),
-            "name": instance.username,
-        })
+        try:
+            client = get_stream_client()
+ 
+            client.upsert_user({
+                "id": str(instance.id),
+                "name": instance.username,
+            })
+        except Exception:
+            logger.exception(
+                "Failed to create Stream user for %s", instance.id
+            )

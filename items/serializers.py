@@ -8,6 +8,10 @@ from users.serializers import UserMiniSerializer
 from categories.serializers import CategoryMiniSerializer, CategorySerializer
 from categories.models import Category
 from django.db import transaction
+import logging
+from chat.services import send_donation_accepted_notification
+
+logger = logging.getLogger(__name__)
 
 
 class BaseItemSerializer(serializers.ModelSerializer):
@@ -432,12 +436,15 @@ class RequestActionSerializer(BaseRequestSerializer):
             instance.save()
 
             if new_status == Request.RequestStatus.ACCEPTED:
+                donor = item.owner
+                receiver = instance.requester
+
                 item.is_available = False
-                item.save()
+                item.save(update_fields=["is_available"])
 
                 Claim.objects.create(
                     item=item,
-                    buyer=instance.requester
+                    buyer=receiver
                 )
 
                 Request.objects.filter(
@@ -447,7 +454,22 @@ class RequestActionSerializer(BaseRequestSerializer):
                     status=Request.RequestStatus.REJECTED
                 )
 
+                transaction.on_commit(
+                    lambda: self.notify_receiver(item, receiver, donor)
+                )
+
         return instance
+
+    def notify_receiver(self, item, receiver, donor):
+        # A chat outage must not undo an accepted donation
+        try:
+            send_donation_accepted_notification(item, receiver, donor)
+        except Exception:
+            logger.exception(
+                "Failed to notify user %s about donation of item %s",
+                receiver.id,
+                item.id
+            )
 
 
 class RequestSerializer(BaseRequestSerializer):

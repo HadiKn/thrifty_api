@@ -44,7 +44,40 @@ def create_item_channel(item, buyer, seller):
 
     return channel
 
+def send_donation_accepted_notification(item, receiver, donor):
+    """Tell the requester their donation request was accepted"""
+    client = get_stream_client()
 
+    client.upsert_users([
+        {"id": str(receiver.id), "name": receiver.username},
+        {"id": str(donor.id), "name": donor.username},
+    ])
+
+    channel_id = f"item-{item.id}-{receiver.id}-{donor.id}"
+    channel = client.channel(
+        "messaging",
+        channel_id,
+        {"members": [str(receiver.id), str(donor.id)]},
+    )
+
+    try:
+        channel.create(str(donor.id))
+    except Exception:
+        pass
+
+    channel.send_message(
+        {
+            "text": (
+                f"Your request for '{item.name}' was accepted. "
+                f"we can arrange the handover."
+            ),
+            "type": "system"
+        },
+        str(donor.id)
+    )
+
+    return channel
+    
 def send_auction_winner_notification(auction, winner):
     """Send notification to auction winner via Stream Chat"""
     client = get_stream_client()
