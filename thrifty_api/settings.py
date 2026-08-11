@@ -119,6 +119,8 @@ CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
     'ssl_cert_reqs': 'CERT_OPTIONAL',
 }
 
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="").split(',')
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15), 
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
