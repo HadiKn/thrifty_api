@@ -1,11 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-
+import logging
 from chat.services import get_stream_client
 
 User = get_user_model()
-
+logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=User)
 def create_stream_user(sender, instance, created, **kwargs):
