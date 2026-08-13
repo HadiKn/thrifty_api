@@ -117,7 +117,7 @@ def send_auction_winner_notification(auction, winner):
     highest_bid = auction.bids.order_by('-bid_amount').first()
     channel.send_message(
         {
-            "text": f"Congratulations! You won the auction for '{auction.item.name}' with a bid of {highest_bid.bid_amount} nsp",
+            "text": f"Congratulations! You won the auction for '{auction.item.name}' with a bid of {highest_bid.bid_amount} SYP",
             "type": "system"
         },
         str(auction.item.owner.id)

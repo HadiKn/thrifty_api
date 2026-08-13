@@ -38,7 +38,7 @@ class UserCreateView(generics.CreateAPIView):
     parser_classes = [parsers.MultiPartParser, parsers.FormParser, parsers.JSONParser]
     permission_classes = [AllowAny]
     @extend_schema(
-        request=UserSerializer,  # Use the serializer to define the request body schema
+        request=UserSerializer,  
         description="Create a new user. Supports form-data, JSON, and multipart uploads, you can use json format then upload a profile picture using the myprofile endpoint",
     )
     def post(self, request, *args, **kwargs):
