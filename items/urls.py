@@ -43,9 +43,9 @@ urlpatterns = [
 
     # path('auctions/', AuctionListView.as_view(), name='auction-list'),
     # path('auctions/<int:pk>/', AuctionDetailView.as_view(), name='auction-detail'),
-    # path('auctions/<int:pk>/bids/', AuctionBidsView.as_view(), name='auction-bids'),
+    path('auctions/<int:pk>/bids/', AuctionBidsView.as_view(), name='auction-bids'),
     # path('users/<int:pk>/bids/', UserBidsView.as_view(), name='user-bids'),
-    # path('my-bids/', MyBidsView.as_view(), name='my-bids'),
+    path('my-bids/', MyBidsView.as_view(), name='my-bids'),
 
     # =====================
     # CREATE

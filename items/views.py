@@ -16,7 +16,8 @@ from .serializers import (
     AuctionSerializer, ClaimSerializer,
     BidListSerializer, AuctionListSerializer,
     BidSerializer, RequestCreateSerializer,
-    RequestActionSerializer, RequestSerializer, ItemPurchaseSerializer
+    RequestActionSerializer, RequestSerializer, ItemPurchaseSerializer,
+    MyBidListSerializer
 )
 from .permissions import (
     IsItemOwner,
@@ -298,7 +299,7 @@ class MyClaimedItemsView(generics.ListAPIView):
 
 # List bids placed by current user
 class MyBidsView(generics.ListAPIView):
-    serializer_class = BidListSerializer
+    serializer_class = MyBidListSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

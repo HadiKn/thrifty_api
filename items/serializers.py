@@ -145,11 +145,6 @@ class AuctionListSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-# serializers.py
-
-from rest_framework import serializers
-from django.utils import timezone
-from .models import Auction, Item
 
 
 class AuctionSerializer(serializers.ModelSerializer):
@@ -212,10 +207,22 @@ class BidListSerializer(serializers.ModelSerializer):
     """
     Lightweight serializer for listing bids.
     """
-
+    bidder = UserMiniSerializer(read_only=True)
     class Meta:
         model = Bid
         fields = ["id", "auction", "bidder", "bid_amount", "bid_date"]
+        read_only_fields = fields
+
+class MyBidListSerializer(serializers.ModelSerializer):
+    """
+    Lightweight serializer for listing bids.
+    """
+    item = ItemListSerializer(source='auction.item', read_only=True)
+
+
+    class Meta:
+        model = Bid
+        fields = ["id", "auction", "item", "bidder", "bid_amount", "bid_date"]
         read_only_fields = fields
 
 
