@@ -492,26 +492,4 @@ class RequestSerializer(BaseRequestSerializer):
             "status",
             "created_at",
         ]
-        read_only_fields = ["requester", "created_at"]
-
-    def validate(self, attrs):
-        user = self.validate_auth()
-        item = attrs.get("item")
-
-        if Request.objects.filter(
-            item=item,
-            requester=user
-        ).exists():
-            raise serializers.ValidationError("You already requested this item.")
-
-        if item.owner == user:
-            raise serializers.ValidationError("You cannot request your own item.")
-
-        if not item.is_available:
-            raise serializers.ValidationError("Item is not available.")
-
-        return attrs
-
-    def create(self, validated_data):
-        validated_data["requester"] = self.get_user()
-        return super().create(validated_data)
+        read_only_fields = fields

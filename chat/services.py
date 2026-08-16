@@ -34,6 +34,7 @@ def create_item_channel(item, buyer, seller):
                 str(buyer.id),
                 str(seller.id),
             ],
+            "item_name": item.name,
         }
     )
 
@@ -57,7 +58,10 @@ def send_donation_accepted_notification(item, receiver, donor):
     channel = client.channel(
         "messaging",
         channel_id,
-        {"members": [str(receiver.id), str(donor.id)]},
+        {
+            "members": [str(receiver.id), str(donor.id)],
+            "item_name": item.name,
+        },
     )
 
     try:
@@ -104,6 +108,7 @@ def send_auction_winner_notification(auction, winner):
                 str(winner.id),
                 str(auction.item.owner.id),
             ],
+            "item_name": auction.item.name,
         }
     )
     

@@ -418,7 +418,6 @@ class BidCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         # Check wallet balance before allowing bid
-        from wallet.services import WalletService
         bidder_wallet = WalletService.get_or_create_wallet(self.request.user)
         bid_amount = serializer.validated_data['bid_amount']
         
@@ -480,7 +479,6 @@ def purchase_item(request, item_id):
             )
         
         # Process wallet payment
-        from wallet.services import WalletService
         buyer_wallet = WalletService.get_or_create_wallet(request.user)
         seller_wallet = WalletService.get_or_create_wallet(item.owner)
         

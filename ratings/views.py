@@ -58,7 +58,6 @@ def rate_seller_from_item(request, item_id):
     
     serializer = SellerRatingCreateSerializer(data=request.data)
     if serializer.is_valid():
-        # Create rating
         rating = serializer.save(
             rater=request.user, 
             seller=item.owner,
