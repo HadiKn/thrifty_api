@@ -27,7 +27,8 @@ class ItemChatView(APIView):
         channel = create_item_channel(item, buyer, seller)
 
         return Response({
-            "channel_id": channel.id
+            "channel_id": channel.id,
+            "item_name": item.name,
         })
 
 
