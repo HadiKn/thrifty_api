@@ -6,6 +6,8 @@ from drf_spectacular.utils import extend_schema
 from django.shortcuts import get_object_or_404
 from .models import Report
 from .serializers import ReportCreateSerializer, ReportSerializer
+from users.models import User
+from categories.models import Category
 
 
 class ReportCreateView(generics.CreateAPIView):
@@ -58,3 +60,20 @@ class ReportDetailView(generics.RetrieveUpdateAPIView):
             serializer.save(resolved_at=timezone.now())
         else:
             serializer.save()
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_statistics(request):
+    """Get admin statistics - users, reports, categories counts"""
+    if not request.user.is_staff:
+        from rest_framework.exceptions import PermissionDenied
+        raise PermissionDenied("Only admins can access statistics.")
+    
+    stats = {
+        'total_users': User.objects.count(),
+        'total_reports': Report.objects.count(),
+        'total_categories': Category.objects.count(),
+    }
+    
+    return Response(stats)
