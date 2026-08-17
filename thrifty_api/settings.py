@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'wallet',
     'ratings',
     'favorites',
+    'reports'
 ]
 
 MIDDLEWARE = [
