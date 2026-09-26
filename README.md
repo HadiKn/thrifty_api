@@ -69,6 +69,7 @@ The backend has been deployed using cloud platforms including Azure Cloudinary a
 
 ## Project Structure
 
+```text
 thrifty_api/
 ├── categories/        # Item categories and category hierarchy
 ├── chat/              # Buyer-item-seller chat integration
@@ -93,3 +94,8 @@ thrifty_api/
 ├── requirements.txt
 ├── build.sh
 └── runtime.txt
+```
+
+## Auther 
+
+Hadi Kanjo
